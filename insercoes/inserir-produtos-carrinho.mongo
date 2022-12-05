@@ -1,0 +1,106 @@
+var produto5= db.produtos.findOneAndUpdate({
+    modelo: "iphone 10",
+    quantidade: {
+        $gt: 0
+    }
+    },{
+        $inc: {
+            quantidade: -1
+        }
+    },{
+            projection: {
+            marca: 1,
+            modelo: 1,
+            preco: 1
+        }
+})
+
+
+
+var produto6 = db.produtos.findOneAndUpdate({
+    modelo: "iphone 11",
+    quantidade: {
+        $gt: 0
+    }
+    },{
+        $inc: {
+            quantidade: -1
+        }
+    },{
+        projection: {
+            marca: 1,
+            modelo: 1,
+            preco: 1
+        }
+})
+
+
+// adicionando o produto para pessoa, um por um 
+db.clientes.update({
+    nome: "Alice"
+},{
+    $push:{
+        "carrinho.produto": produto5,
+    }
+})
+
+db.clientes.update({
+    nome: "Alice"
+},{
+    $push:{
+        "carrinho.produto": produto1,
+    }
+})
+
+//adicionando mais produtos
+
+db.clientes.update({
+    nome: "Alice"
+},{
+    $push:{
+        "carrinho.produto":{
+          $each: [produto5, produto6]
+        }
+
+    }
+})
+
+
+// agregando informações que vem de cliente 
+
+db.clientes.aggregate([
+    {
+        $match: {
+            nome: "Alice"
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            id_cliente: "$_id",
+            endereco: "$endereco",
+            data: ISODate(),
+            produtos: "$carrinho.produtos",
+            valorTotal: {
+                $sum: "$carrinho.produtos.preco"
+            }
+        }
+    }, {
+        $merge: "pedidos"
+    }
+]).pretty()
+
+
+db.clientes.update({
+    nome: "Alice"
+}, {
+    $set: {
+        "carrinho.produtos": []
+    }
+})
+
+
+db.lojas.insertOne({
+    nome: "Apple Store",
+    endereco: "Rua dos Andradas",
+})

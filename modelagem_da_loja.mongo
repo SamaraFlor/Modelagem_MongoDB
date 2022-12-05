@@ -1,0 +1,95 @@
+
+ //. inserir produto
+db.produtos.insertOne({
+    marca:"Apple s",
+    modelo:"iphone 10",
+    descricao:"celular ano 2020",
+    sistema:"ios 12",
+    memoria:"128gb",
+    chip: 1,
+    preco: NumberDecimal("8.000")
+})
+
+//inserir cliente
+
+db.clientes.insertOne({
+    nome:"Samara Flor",
+    endereco:"av nove",
+    email:"samara@example.com",
+    senha:"senha1234"
+})
+db.clientes.insertOne({
+    nome:"Anita ",
+    endereco:"av um",
+    email:"anita@example.com",
+    senha:"senhadificil"
+})
+db.clientes.insertOne({
+    nome:"Alice",
+    endereco:"av dez",
+    email:"alice@example.com",
+    senha:"senha123"
+})
+
+//update produto
+db.produtos.update({
+    modelo: "iphone 14"
+},{
+      $set:{
+        quantidade:12
+    }
+})
+
+update cliente
+db.clientes.updateMany({}, 
+{
+    $set: {
+    carrinho:{
+        produtos:[]
+    }
+    }
+})
+
+// busca e atualiza o produto
+db.produtos.findOneAndUpdate({
+    modelo: "iphone 10",
+    quantidade: {
+        $gt:0
+    }
+},{
+    $inc:{
+        quantidade: -1
+    }
+},{
+    $project: {
+        marca:1,
+        modelo:1,
+        preco:1
+    }
+})
+
+var produto = db.produtos.findOneAndUpdate({
+    modelo: "iphone 14",
+    quantidade: {
+        $gt:0
+    }
+},{
+    $inc:{
+        quantidade: -1
+    }
+},{
+    $project: {
+        marca:1,
+        modelo:1,
+        preco:1
+    }
+})
+
+// modificar 
+db.clientes.update({
+    nome: "Samara Flor"
+},{
+    $push:{
+        "carrinho.produtos":produto
+    }
+})
